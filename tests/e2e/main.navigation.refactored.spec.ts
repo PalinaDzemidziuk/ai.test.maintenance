@@ -25,9 +25,14 @@ test.describe('Main page navigation', () => {
           await playwrightDev.goto();
 
           const link = locator(playwrightDev);
+          const ariaLabel = await locator(playwrightDev).evaluate((el) =>
+            el.getAttribute('aria-label') ?? el.textContent?.trim() ?? ''
+            );
+            
           await expect(link).toBeVisible();
           await expect(link).toHaveText(name);
           await expect(link).toHaveAttribute('href', /.+/);
+          expect(ariaLabel).toBe(name);
         });
       }
     });
