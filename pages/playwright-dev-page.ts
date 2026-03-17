@@ -15,7 +15,7 @@ export class PlaywrightDevPage {
     this.page = page;
     this.getStartedLink = page.getByRole('link', { name: 'Get started' });
     this.gettingStartedHeader = page.getByRole('heading', { name: 'Installation', level: 1 });
-    this.docsNavLink = page.getByRole('link', { name: 'Docs', exact: true });
+    this.docsNavLink = page.locator('#docs');
     this.apiNavLink = page.getByRole('link', { name: 'API', exact: true });
     this.communityNavLink = page.getByRole('link', { name: 'Community', exact: true });
   }
