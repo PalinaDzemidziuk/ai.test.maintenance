@@ -10,7 +10,6 @@ test.describe('Main page navigation', () => {
   });
 
   test('should display the Docs navigation link', async () => {
-    await playwrightDev.waitForTimeout(2000)
     await expect(playwrightDev.docsNavLink).toBeVisible();
     await expect(playwrightDev.docsNavLink).toBeEnabled();
     await expect(playwrightDev.docsNavLink).toHaveText('Docs');

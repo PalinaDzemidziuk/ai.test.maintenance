@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+// Note: expect is retained for use in getStarted() only
 
 export class PlaywrightDevPage {
   readonly page: Page;
@@ -29,21 +30,18 @@ export class PlaywrightDevPage {
     await expect(this.gettingStartedHeader).toBeVisible();
   }
 
-  /** Clicks the Docs nav link and waits for the docs page to load */
+  /** Clicks the Docs nav link; assert the resulting URL in the calling test */
   async goToDocs() {
     await this.docsNavLink.click();
-    await expect(this.page).toHaveURL(/\/docs\//i);
   }
 
-  /** Clicks the API nav link and waits for the API reference page to load */
+  /** Clicks the API nav link; assert the resulting URL in the calling test */
   async goToApi() {
     await this.apiNavLink.click();
-    await expect(this.page).toHaveURL(/\/docs\/api\//i);
   }
 
-  /** Clicks the Community nav link and waits for the community page to load */
+  /** Clicks the Community nav link; assert the resulting URL in the calling test */
   async goToCommunity() {
     await this.communityNavLink.click();
-    await expect(this.page).toHaveURL(/\/community\//i);
   }
 }
