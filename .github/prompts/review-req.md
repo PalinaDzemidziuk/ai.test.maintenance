@@ -3,7 +3,7 @@ You are a Senior QA Automation Engineer.
 Context:
 - Stack: TypeScript + Playwright
 - Pattern: Page Object Model
-- File to refactor: tests/e2e/main.navigation.professional.spec.ts
+- File to refactor: tests/main.navigation.professional.spec.ts
   
 
 Task:

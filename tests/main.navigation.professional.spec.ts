@@ -82,7 +82,7 @@ test.describe('Main page navigation [TC-NAV-001]', () => {
       await nav.goToDocs();
       // [4] URL and heading assertions in the test, not inside the POM action
       await expect(page).toHaveURL(/\/docs\//i);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toContainText('Installation');
     });
 
     // TC-NAV-001 step 7
@@ -91,7 +91,7 @@ test.describe('Main page navigation [TC-NAV-001]', () => {
 
       await nav.goToApi();
       await expect(page).toHaveURL(/\/docs\/api\//i);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toContainText('Playwright Library');
     });
 
     // TC-NAV-001 step 8
@@ -100,11 +100,11 @@ test.describe('Main page navigation [TC-NAV-001]', () => {
 
       await nav.goToCommunity();
       await expect(page).toHaveURL(/\/community\//i);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toContainText('Welcome');
     });
   });
 
-  // ── Edge case ──────────────────────────────────────────────────────────────
+  // ── Edge cases ─────────────────────────────────────────────────────────────
 
   test.describe('Edge cases', () => {
 
@@ -120,58 +120,60 @@ test.describe('Main page navigation [TC-NAV-001]', () => {
         await expect(link).not.toHaveAttribute('disabled');
       }
     });
-  });
-    // TC-NAV-001 – edge case: each nav link must not land on a wrong target URL
+
+    // TC-NAV-001 – each nav link must not land on a wrong target URL
     test('each navigation link should resolve to its own URL and not a sibling page',
-    async ({ page }) => {
+      async ({ page }) => {
         test.info().annotations.push({
-        type: 'manual-case',
-        description: 'TC-NAV-001 – wrong target URL edge case',
+          type: 'manual-case',
+          description: 'TC-NAV-001 – wrong target URL edge case',
         });
 
         const nav = new PlaywrightDevPage(page);
 
         const expectations = [
-        {
-            label:    'Docs',
-            action:   () => nav.goToDocs(),
-            correct:  /\/docs\//i,
-            wrong:    [/\/docs\/api\//i, /\/community\//i],
-        },
-        {
-            label:    'API',
-            action:   () => nav.goToApi(),
-            correct:  /\/docs\/api\//i,
-            wrong:    [/^https:\/\/playwright\.dev\/docs\/(?!api)/i, /\/community\//i],
-        },
-        {
-            label:    'Community',
-            action:   () => nav.goToCommunity(),
-            correct:  /\/community\//i,
-            wrong:    [/\/docs\//i],
-        },
+          {
+            label:   'Docs',
+            action:  () => nav.goToDocs(),
+            correct: /\/docs\//i,
+            // Docs must not resolve to API sub-path or Community
+            wrong:   [/\/docs\/api\//i, /\/community\//i],
+          },
+          {
+            label:   'API',
+            action:  () => nav.goToApi(),
+            correct: /\/docs\/api\//i,
+            // API must not resolve to top-level docs (non-api) or Community
+            // (?!api) lookahead excludes /docs/api/ from the negative check
+            wrong:   [/^https:\/\/playwright\.dev\/docs\/(?!api)/i, /\/community\//i],
+          },
+          {
+            label:   'Community',
+            action:  () => nav.goToCommunity(),
+            correct: /\/community\//i,
+            wrong:   [/\/docs\//i],
+          },
         ] as const;
 
         for (const { label, action, correct, wrong } of expectations) {
-        await nav.goto();
-        await action();
+          await nav.goto();
+          await action();
 
-        // Must land on the correct destination
-        await expect(page, `"${label}" should navigate to the correct URL`).toHaveURL(correct);
+          // Must land on the correct destination
+          await expect(page, `"${label}" should navigate to the correct URL`).toHaveURL(correct);
 
-        // Must NOT land on any sibling page
-        for (const wrongPattern of wrong) {
-            expect(
-            page.url(),
-            `"${label}" should not navigate to ${wrongPattern}`,
-            ).not.toMatch(wrongPattern);
-        }
+          // Must NOT land on any sibling page — web-first auto-retrying assertion
+          for (const wrongPattern of wrong) {
+            await expect(page, `"${label}" should not navigate to ${wrongPattern}`)
+              .not.toHaveURL(wrongPattern);
+          }
 
-        // The page must have an h1 — rules out landing on a generic error/redirect page
-        await expect(
+          // Destination page must have a visible h1 — guards against silent error-page redirects
+          await expect(
             page.getByRole('heading', { level: 1 }),
             `"${label}" destination page should have a visible h1`,
-        ).toBeVisible();
+          ).toBeVisible();
         }
-    });
+      });
+  });
 });
