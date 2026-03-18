@@ -15,7 +15,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { PlaywrightDevPage } from '../../pages/playwright-dev-page';
+import { PlaywrightDevPage } from '../pages/playwright-dev-page';
 
 test.describe('Main page navigation [TC-NAV-001]', () => {
 
